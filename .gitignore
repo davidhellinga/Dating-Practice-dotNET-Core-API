@@ -1,4 +1,5 @@
 client/
+/API/appsettings.json
 
 # Common IntelliJ Platform excludes
 
