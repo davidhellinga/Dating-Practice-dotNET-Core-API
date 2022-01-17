@@ -4,6 +4,7 @@ using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +14,13 @@ public class AccountController : BaseApiController
 {
     private readonly DataContext _context;
     private readonly ITokenService _tokenService;
+    private readonly IMapper _mapper;
 
-    public AccountController(DataContext context, ITokenService tokenService)
+    public AccountController(DataContext context, ITokenService tokenService, IMapper mapper)
     {
         _context = context;
         _tokenService = tokenService;
+        _mapper = mapper;
     }
 
     [HttpPost("register")]
@@ -26,16 +29,16 @@ public class AccountController : BaseApiController
     {
         if (await UserExists(registerDto.Username)) return BadRequest("Username is taken");
 
+        var user = _mapper.Map<AppUser>(registerDto);
+
+
         //using: makes sure the class is properly disposed of when done by using the dispose() method
         using var hmac = new HMACSHA512();
-
-        //create the user with hashed and salted passowrd
-        var user = new AppUser
-        {
-            Username = registerDto.Username.ToLower(),
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-            PasswordSalt = hmac.Key
-        };
+        
+        user.Username = registerDto.Username.ToLower();
+        
+        user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password));
+        user.PasswordSalt = hmac.Key;
 
         //Starts tracking the user but doesnt save it to the DB yet
         _context.Users.Add(user);
@@ -46,7 +49,8 @@ public class AccountController : BaseApiController
         return new UserDto
         {
             Username = user.Username,
-            Token = _tokenService.CreateToken(user)
+            Token = _tokenService.CreateToken(user),
+            KnownAs = user.KnownAs
         };
     }
 
@@ -54,7 +58,7 @@ public class AccountController : BaseApiController
     public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
         var user = await _context.Users.Include(p => p.Photos)
-            .SingleOrDefaultAsync(x => x.Username == loginDto.Username);
+            .SingleOrDefaultAsync(x => x.Username == loginDto.Username.ToLower());
         if (user == null) return Unauthorized("Invalid username");
 
         using var hmac = new HMACSHA512(user.PasswordSalt);
@@ -65,6 +69,7 @@ public class AccountController : BaseApiController
             {
                 Username = user.Username,
                 Token = _tokenService.CreateToken(user),
+                KnownAs = user.KnownAs,
                 PhotoUrl = user.Photos.FirstOrDefault(photo => photo.IsMain)?.Url
             }
             : Unauthorized("Invalid password");
