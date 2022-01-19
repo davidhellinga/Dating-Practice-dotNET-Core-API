@@ -13,12 +13,13 @@ public static class ApplicationServiceExtensions
     {
         services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
         services.AddScoped<IPhotoService, PhotoService>();
-        
+
         services.AddAutoMapper(typeof(AutomapperProfiles).Assembly);
 
         //AddScoped means that the service exists for the duration of the HTTP request
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<LogUserActivity>();
 
         services.AddDbContext<DataContext>(options =>
         {

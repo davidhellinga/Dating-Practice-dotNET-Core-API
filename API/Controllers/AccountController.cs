@@ -50,7 +50,8 @@ public class AccountController : BaseApiController
         {
             Username = user.Username,
             Token = _tokenService.CreateToken(user),
-            KnownAs = user.KnownAs
+            KnownAs = user.KnownAs,
+            Gender = user.Gender
         };
     }
 
@@ -70,7 +71,8 @@ public class AccountController : BaseApiController
                 Username = user.Username,
                 Token = _tokenService.CreateToken(user),
                 KnownAs = user.KnownAs,
-                PhotoUrl = user.Photos.FirstOrDefault(photo => photo.IsMain)?.Url
+                PhotoUrl = user.Photos.FirstOrDefault(photo => photo.IsMain)?.Url,
+                Gender = user.Gender
             }
             : Unauthorized("Invalid password");
     }
