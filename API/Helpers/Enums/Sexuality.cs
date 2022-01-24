@@ -1,4 +1,4 @@
-namespace API.Helpers;
+namespace API.Helpers.Enums;
 
 public enum Sexuality
 {

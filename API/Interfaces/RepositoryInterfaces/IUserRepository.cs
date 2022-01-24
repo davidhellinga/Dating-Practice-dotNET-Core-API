@@ -1,8 +1,9 @@
 using API.DTOs;
 using API.Entities;
 using API.Helpers.PaginationHelpers;
+using API.Helpers.PaginationHelpers.Params;
 
-namespace API.Interfaces;
+namespace API.Interfaces.RepositoryInterfaces;
 
 public interface IUserRepository
 {

@@ -1,4 +1,5 @@
 using API.Helpers;
+using API.Helpers.Enums;
 
 namespace API.Extensions;
 
