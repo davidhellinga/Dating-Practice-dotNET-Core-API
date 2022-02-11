@@ -1,41 +1,53 @@
 using API.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 
-public class DataContext : DbContext
+public class DataContext : IdentityDbContext<AppUser, AppRole, int, IdentityUserClaim<int>, AppUserRole,
+    IdentityUserLogin<int>, IdentityRoleClaim<int>, IdentityUserToken<int>>
 {
     public DataContext(DbContextOptions options) : base(options)
     {
     }
 
-    public DbSet<AppUser> Users { get; set; }
     public DbSet<UserLike> Likes { get; set; }
     public DbSet<Message> Messages { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(builder);
 
-        modelBuilder.Entity<UserLike>()
+        builder.Entity<AppUser>()
+            .HasMany(u => u.UserRoles)
+            .WithOne(r => r.User)
+            .HasForeignKey(u => u.UserId)
+            .IsRequired();
+        builder.Entity<AppRole>()
+            .HasMany(r => r.UserRoles)
+            .WithOne(u => u.Role)
+            .HasForeignKey(r => r.RoleId)
+            .IsRequired();
+
+        builder.Entity<UserLike>()
             .HasKey(k => new {k.SourceUserId, k.LikedUserId});
-        
-        modelBuilder.Entity<UserLike>()
+        builder.Entity<UserLike>()
             .HasOne(s => s.SourceUser)
             .WithMany(l => l.LikedUsers)
             .HasForeignKey(s => s.SourceUserId)
             .OnDelete(DeleteBehavior.Cascade);
-        modelBuilder.Entity<UserLike>()
+        builder.Entity<UserLike>()
             .HasOne(s => s.LikedUser)
             .WithMany(l => l.LikedByUsers)
             .HasForeignKey(s => s.LikedUserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Message>()
+        builder.Entity<Message>()
             .HasOne(u => u.Recipient)
             .WithMany(m => m.MessagesReceived)
             .OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<Message>()
+        builder.Entity<Message>()
             .HasOne(u => u.Sender)
             .WithMany(m => m.MessagesSent)
             .OnDelete(DeleteBehavior.Restrict);

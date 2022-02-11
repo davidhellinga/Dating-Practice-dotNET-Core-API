@@ -44,10 +44,10 @@ public class MessageRepository : IMessageRepository
 
         query = messageParams.Container switch
         {
-            "Inbox" => query.Where(m => m.Recipient.Username == messageParams.Username && !m.RecipientDeleted),
-            "Outbox" => query.Where(m => m.Sender.Username == messageParams.Username && !m.SenderDeleted),
+            "Inbox" => query.Where(m => m.Recipient.UserName == messageParams.Username && !m.RecipientDeleted),
+            "Outbox" => query.Where(m => m.Sender.UserName == messageParams.Username && !m.SenderDeleted),
             _ => query.Where(m =>
-                m.Recipient.Username == messageParams.Username && !m.RecipientDeleted && m.DateRead == null)
+                m.Recipient.UserName == messageParams.Username && !m.RecipientDeleted && m.DateRead == null)
         };
 
         var messages = query.ProjectTo<MessageDto>(_mapper.ConfigurationProvider);
@@ -59,15 +59,15 @@ public class MessageRepository : IMessageRepository
         var messages = await _context.Messages
             .Include(m => m.Sender).ThenInclude(u => u.Photos)
             .Include(m => m.Recipient).ThenInclude(u => u.Photos)
-            .Where(m => (m.Recipient.Username == currentUsername && m.Sender.Username == recipientUsername &&
+            .Where(m => (m.Recipient.UserName == currentUsername && m.Sender.UserName == recipientUsername &&
                          !m.RecipientDeleted) ||
-                        (m.Recipient.Username == recipientUsername && m.Sender.Username == currentUsername &&
+                        (m.Recipient.UserName == recipientUsername && m.Sender.UserName == currentUsername &&
                          !m.SenderDeleted))
             .OrderBy(m => m.MessageSent)
             .ToListAsync();
 
         var unreadMessages =
-            messages.Where(m => m.DateRead == null && m.Recipient.Username == currentUsername).ToList();
+            messages.Where(m => m.DateRead == null && m.Recipient.UserName == currentUsername).ToList();
         if (unreadMessages.Any())
         {
             foreach (var unreadMessage in unreadMessages)

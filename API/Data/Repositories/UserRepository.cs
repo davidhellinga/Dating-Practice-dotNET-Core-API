@@ -45,7 +45,7 @@ public class UserRepository : IUserRepository
 
     public async Task<AppUser> GetUserByUsernameAsync(string username)
     {
-        return await _context.Users.Include(p => p.Photos).SingleOrDefaultAsync(x => x.Username == username);
+        return await _context.Users.Include(p => p.Photos).SingleOrDefaultAsync(x => x.UserName == username);
     }
 
     public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)
@@ -54,7 +54,7 @@ public class UserRepository : IUserRepository
 
         var query = _context.Users.AsQueryable();
         //filters
-        query = query.Where(u => u.Username != userParams.CurrentUsername);
+        query = query.Where(u => u.UserName != userParams.CurrentUsername);
         if (attractedTo != "all") query = query.Where(u => u.Gender == attractedTo);
 
         var minDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);
@@ -74,7 +74,7 @@ public class UserRepository : IUserRepository
 
     public async Task<MemberDto> GetMemberAsync(string username)
     {
-        return await _context.Users.Where(x => x.Username == username)
+        return await _context.Users.Where(x => x.UserName == username)
             .ProjectTo<MemberDto>(_mapper.ConfigurationProvider).SingleOrDefaultAsync();
     }
 }

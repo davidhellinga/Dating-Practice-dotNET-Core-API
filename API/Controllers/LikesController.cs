@@ -28,7 +28,7 @@ public class LikesController : BaseApiController
         var sourceUser = await _likesRepository.GetUserWithLikes(sourceUserId);
 
         if (likedUser == null) return NotFound();
-        if (sourceUser.Username == username) return BadRequest("You cannot like yourself");
+        if (sourceUser.UserName == username) return BadRequest("You cannot like yourself");
 
         var userLike = await _likesRepository.GetUserLike(sourceUserId, likedUser.Id);
         if (userLike != null) return BadRequest("You already like this user");
