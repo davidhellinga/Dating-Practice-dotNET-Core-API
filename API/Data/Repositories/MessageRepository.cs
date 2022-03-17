@@ -20,6 +20,36 @@ public class MessageRepository : IMessageRepository
         _mapper = mapper;
     }
 
+    public void AddGroup(Group group)
+    {
+        _context.Groups.Add(group);
+    }
+
+    public void RemoveConnection(Connection connection)
+    {
+        _context.Connections.Remove(connection);
+    }
+
+    public async Task<Connection> GetConnection(string connectionId)
+    {
+        return await _context.Connections.FindAsync(connectionId);
+    }
+
+    public async Task<Group> GetGroupForConnection(string connectionId)
+    {
+        return await _context.Groups
+            .Include(c => c.Connections)
+            .Where(c => c.Connections.Any(x => x.ConnectionId == connectionId))
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Group> GetMessageGroup(string groupName)
+    {
+        return await _context.Groups
+            .Include(group => group.Connections)
+            .FirstOrDefaultAsync(group => group.Name == groupName);
+    }
+
     public void AddMessage(Message message)
     {
         _context.Messages.Add(message);
@@ -72,7 +102,7 @@ public class MessageRepository : IMessageRepository
         {
             foreach (var unreadMessage in unreadMessages)
             {
-                unreadMessage.DateRead = DateTime.Now;
+                unreadMessage.DateRead = DateTime.UtcNow;
             }
 
             await _context.SaveChangesAsync();
