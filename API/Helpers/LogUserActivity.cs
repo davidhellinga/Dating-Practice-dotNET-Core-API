@@ -1,6 +1,5 @@
 using API.Extensions;
 using API.Interfaces;
-using API.Interfaces.RepositoryInterfaces;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace API.Helpers;
@@ -14,9 +13,14 @@ public class LogUserActivity : IAsyncActionFilter
         if (!resultContext.HttpContext.User.Identity.IsAuthenticated) return;
 
         var userId = resultContext.HttpContext.User.GetUserId();
-        var repo = resultContext.HttpContext.RequestServices.GetService<IUserRepository>();
-        var user = await repo.GetUserByIdAsync(userId);
-        user.LastActive = DateTime.Now;
-        await repo.SaveAllAsync();
+        var unitOfWork = resultContext.HttpContext.RequestServices.GetService<IUnitOfWork>();
+        if (unitOfWork != null)
+        {
+            var user = await unitOfWork.UserRepository.GetUserByIdAsync(userId);
+            user.LastActive = DateTime.UtcNow;
+            await unitOfWork.Complete();
+        }
+        else throw new NullReferenceException("Unit of Work service was not initialized");
+
     }
 }

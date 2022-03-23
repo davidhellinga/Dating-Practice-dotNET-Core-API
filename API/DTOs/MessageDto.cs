@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace API.DTOs;
 
 public class MessageDto
@@ -13,4 +15,10 @@ public class MessageDto
     public string Content { get; set; }
     public DateTime? DateRead { get; set; }
     public DateTime MessageSent { get; set; }
+    
+    //The following are not sent to the client side and are used to optimize database queries by projecting to DTO
+    [JsonIgnore]
+    public bool SenderDeleted { get; set; }
+    [JsonIgnore]
+    public bool RecipientDeleted { get; set; }
 }

@@ -1,8 +1,6 @@
 using API.Data;
-using API.Data.Repositories;
 using API.Helpers;
 using API.Interfaces;
-using API.Interfaces.RepositoryInterfaces;
 using API.Services;
 using API.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +19,7 @@ public static class ApplicationServiceExtensions
 
         //AddScoped means that the service exists for the duration of the HTTP request
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<ILikesRepository, LikesRepository>();
-        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<LogUserActivity>();
 
         services.AddDbContext<DataContext>(options =>

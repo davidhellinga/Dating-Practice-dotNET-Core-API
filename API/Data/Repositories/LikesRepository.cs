@@ -3,7 +3,6 @@ using API.Entities;
 using API.Extensions;
 using API.Helpers.PaginationHelpers;
 using API.Helpers.PaginationHelpers.Params;
-using API.Interfaces;
 using API.Interfaces.RepositoryInterfaces;
 using Microsoft.EntityFrameworkCore;
 
