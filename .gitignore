@@ -1,5 +1,6 @@
 client/
 /API/appsettings.json
+/API/wwwroot/**
 
 # Common IntelliJ Platform excludes
 
